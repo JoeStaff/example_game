@@ -1,9 +1,12 @@
 # Specify the minimum required version of CMake
 cmake_minimum_required(VERSION 3.5)
 
+# Get the parent directory of the CMakeLists.txt file
+get_filename_component(PARENT_DIR ${PROJECT_SOURCE_DIR} NAME)
+
 # Set the project name and game name
-set(PROJECT_NAME "example_game")
-set(GAME_NAME "butcherblock")
+set(PROJECT_NAME ${PARENT_DIR})
+set(GAME_NAME ${PARENT_DIR})
 
 # Specify the C++ standard
 #set(CMAKE_CXX_STANDARD 11)

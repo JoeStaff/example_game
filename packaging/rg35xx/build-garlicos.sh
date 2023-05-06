@@ -76,6 +76,11 @@ cp -R $PACKAGESPACE/package .
 cd bin && cp * ../package/ROMS/PORTS/$(basename "$WORKSPACE") && cd ..
 cd .. && cp -R assets $BUILD_DIR/package/ROMS/PORTS/ && cd $BUILD_DIR
 
-# Generate zip file
 cd package
+# Modify launch script and icon
+sed -i "s/GAME_NAME/$(basename "$WORKSPACE")/g" ./ROMS/PORTS/GAME_NAME.sh
+mv ROMS/PORTS/GAME_NAME.sh ROMS/PORTS/$(basename "$WORKSPACE").png
+mv ROMS/PORTS/Imgs/GAME_NAME.png ROMS/PORTS/Imgs/$(basename "$WORKSPACE").png
+
+# Generate zip
 zip -r ../$ZIP_NAME *

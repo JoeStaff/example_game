@@ -1,5 +1,6 @@
+project(GAME)
 # Specify the minimum required version of CMake
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.13)
 
 # Get the parent directory of the CMakeLists.txt file
 get_filename_component(PARENT_DIR ${PROJECT_SOURCE_DIR} NAME)
@@ -40,6 +41,11 @@ if(USE_SDL1)
     find_package(SDL REQUIRED)
     set(SDL_INCLUDE_DIR ${SDL_INCLUDE_DIR})
     set(SDL_LIBRARY ${SDL_LIBRARY})
+
+    # Find SDL_mixer
+    find_package(SDL_mixer REQUIRED)
+    set(SDL_MIXER_INCLUDE_DIR ${SDL_MIXER_INCLUDE_DIRS})
+    set(SDL_MIXER_LIBRARY ${SDL_MIXER_LIBRARIES})
 endif()
 
 # Check if SDL2 is requested
@@ -50,18 +56,18 @@ if(USE_SDL2)
 endif()
 
 # Find all source files in the src directory
-file(GLOB SOURCES src/*.cpp)
+file(GLOB SOURCES src/*.cpp src/**/*.cpp)
 
 # Create the executable target
 add_executable(${GAME_NAME} ${SOURCES})
 
-# Link with the selected graphics library
-target_link_libraries(${GAME_NAME} ${SDL_LIBRARY})
+# Link with the selected graphics and audio libraries
+target_link_libraries(${GAME_NAME} ${SDL_LIBRARY} ${SDL_MIXER_LIBRARY})
 
 # Set include directories
-target_include_directories(${GAME_NAME} PRIVATE ${SDL_INCLUDE_DIR})
+target_include_directories(${GAME_NAME} PRIVATE ${SDL_INCLUDE_DIR} ${SDL_MIXER_INCLUDE_DIR})
 
-# Set the compilation flags
+# Set the compilation
 if(DEBUG)
     target_compile_definitions(${GAME_NAME} PRIVATE -DDEBUG)
     target_compile_options(${GAME_NAME} PRIVATE -g)

@@ -46,6 +46,16 @@ if(USE_SDL1)
     find_package(SDL_mixer REQUIRED)
     set(SDL_MIXER_INCLUDE_DIR ${SDL_MIXER_INCLUDE_DIRS})
     set(SDL_MIXER_LIBRARY ${SDL_MIXER_LIBRARIES})
+
+    # Find SDL_image
+    find_package(SDL_image REQUIRED)
+    set(SDL_IMAGE_INCLUDE_DIR ${SDL_IMAGE_INCLUDE_DIRS})
+    set(SDL_IMAGE_LIBRARY ${SDL_IMAGE_LIBRARIES})
+
+    # Find SDL_gfx
+    find_package(SDL_gfx REQUIRED)
+    set(SDL_GFX_INCLUDE_DIR ${SDL_GFX_INCLUDE_DIRS})
+    set(SDL_GFX_LIBRARY ${SDL_GFX_LIBRARIES})
 endif()
 
 # Check if SDL2 is requested
@@ -62,10 +72,10 @@ file(GLOB SOURCES src/*.cpp src/**/*.cpp)
 add_executable(${GAME_NAME} ${SOURCES})
 
 # Link with the selected graphics and audio libraries
-target_link_libraries(${GAME_NAME} ${SDL_LIBRARY} ${SDL_MIXER_LIBRARY})
+target_link_libraries(${GAME_NAME} ${SDL_LIBRARY} ${SDL_MIXER_LIBRARY} ${SDL_IMAGE_LIBRARY} ${SDL_GFX_LIBRARY})
 
 # Set include directories
-target_include_directories(${GAME_NAME} PRIVATE ${SDL_INCLUDE_DIR} ${SDL_MIXER_INCLUDE_DIR})
+target_include_directories(${GAME_NAME} PRIVATE ${SDL_INCLUDE_DIR} ${SDL_MIXER_INCLUDE_DIR} ${SDL_IMAGE_INCLUDE_DIR} ${SDL_GFX_INCLUDE_DIR})
 
 # Set the compilation
 if(DEBUG)

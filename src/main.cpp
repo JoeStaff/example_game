@@ -8,6 +8,7 @@ int main(int argc, char* argv[]) {
     while(gameRunning){
         SDL_Delay(16);
     }
+    SDL_Quit();
     return 0;
 }
 bool IsGameRunning(){

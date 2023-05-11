@@ -31,11 +31,6 @@ namespace input {
         ConnectControllers();
         int threadID;
         thread=SDL_CreateThread(PollEvents,&threadID);
-
-        audio::Initiate();
-        audio::loadSoundEffect("./assets/sounds/fart.ogg","fart");
-        audio::loadSoundEffect("./assets/sounds/fart.wav","fart2");
-
     }
 
     void ConnectControllers(){
@@ -85,8 +80,6 @@ namespace input {
                 switch(e.type){
                     case SDL_JOYBUTTONDOWN:
                         engine::input::SetButton(e.jbutton.which,joystickData[e.jbutton.which].buttonMap[e.jbutton.button],true);
-                        if(e.jbutton.button%2==0)audio::playSoundEffect("fart");
-                        else audio::playSoundEffect("fart2");
                         break;
                     case SDL_JOYBUTTONUP:
                         engine::input::SetButton(e.jbutton.which,joystickData[e.jbutton.which].buttonMap[e.jbutton.button],false);
@@ -179,8 +172,6 @@ namespace input {
             }
         }
     }
-
-
 
     std::vector<FileButtonMapping> parseButtonMappings(const std::string& line) {
         std::vector<FileButtonMapping> mappings;

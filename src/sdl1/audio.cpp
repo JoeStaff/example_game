@@ -18,9 +18,9 @@ namespace audio{
     // Function to initialize SDL and SDL_mixer
     void Initiate()
     {
-        if (SDL_Init(SDL_INIT_AUDIO) < 0)
+        if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0)
         {
-            log(ERROR) << "SDL initialization failed: " << SDL_GetError();
+            log(ERROR) << "SDL audio initialization failed: " << SDL_GetError();
         }
 
         if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 1024) == -1)
@@ -31,6 +31,8 @@ namespace audio{
 		// Set up UI channels
 		Mix_ReserveChannels(2);
 		Mix_GroupChannels(1, 2, 0);
+
+        log(INFO) << "SDL audio initialized successfully.";
     }
 
     // Function to load a sound effect from a file and store it in the vector and map

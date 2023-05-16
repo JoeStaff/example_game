@@ -10,7 +10,7 @@ namespace audio{
     void Initiate();
     bool loadSoundEffect(const std::string& filename, const std::string& name);
     void unloadSoundEffect(const std::string& name);
-    void playSoundEffect(const std::string& name, int volume = MIX_MAX_VOLUME, int loops = 0);
+    void playSoundEffect(const std::string&, int, int);
     void pauseSoundEffects();
     void resumeSoundEffects();
     void quitSDL();

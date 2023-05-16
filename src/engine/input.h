@@ -2,11 +2,20 @@
 #define ENGINE_INPUT_H
 
 #include <map>
+#include <functional>
 
 namespace engine{
 namespace input{
 
     constexpr int MAX_CONTROLLERS=16;
+    
+    typedef std::function<void*()> ButtonFunction;
+
+    enum class ButtonActionType{
+        Up,
+        Down,
+        Tap
+    };
 
     enum class Controller{
         SOUTH,
@@ -38,15 +47,22 @@ namespace input{
     using ButtonMap = std::map<Controller, bool>;
     using ButtonUpdateMap = std::map<Controller, long long>;
     using AxisMap = std::map<Controller, int>;
+    using ButtonFunctionMap = std::map<Controller, ButtonFunction>;
 
     struct ControllerData
     {
         ButtonMap buttonMap;
         ButtonUpdateMap buttonUpdateMap;
         AxisMap axisMap;
+        ButtonFunctionMap downFunctionMap;
+        ButtonFunctionMap upFunctionMap;
+        ButtonFunctionMap tapFunctionMap;
     };
     void SetButton(int controller, Controller button, bool down);
     void SetAxis(int controller, Controller button,int value);
+    void setButtonFunction(int controller, Controller button, ButtonActionType buttonActionType, ButtonFunction function);
+    void clearButtonFunction(int controller, Controller button, ButtonActionType buttonActionType);
+    void clearAllButtonFunction(int controller);
     void _buttonDown(int controller, Controller button);
     void _buttonReleased(int controller, Controller button);
     void _buttonTapped(int controller, Controller button);

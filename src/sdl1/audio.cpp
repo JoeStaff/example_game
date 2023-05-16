@@ -1,10 +1,11 @@
-
+#include "audio.h"
 #include <iostream>
 #include <vector>
 #include <map>
 #include <SDL/SDL.h>
 #include <SDL/SDL_mixer.h>
 #include "../logger.h"
+#include "../engine/audio.h"
 
 namespace sdl1{
 namespace audio{
@@ -30,7 +31,13 @@ namespace audio{
 		Mix_AllocateChannels(16);
 		// Set up UI channels
 		Mix_ReserveChannels(2);
-		Mix_GroupChannels(1, 2, 0);
+		//Mix_GroupChannels(1, 2, 0);
+
+        engine::audio::driverLoadSoundEffect(&loadSoundEffect);
+        engine::audio::driverpauseSoundEffects(&pauseSoundEffects);
+        engine::audio::driverplaySoundEffect(&playSoundEffect);
+        engine::audio::driverresumeSoundEffects(&resumeSoundEffects);
+        engine::audio::driverunloadSoundEffect(&unloadSoundEffect);
 
         log(INFO) << "SDL audio initialized successfully.";
     }

@@ -4,11 +4,14 @@
 
 #include <map>
 #include "../logger.h"
+#include "image.h"
+#include "../engine/image.h"
 
 namespace sdl1{
 namespace image{
 
     SDL_Surface* screenSurface;
+    std::map<std::string,SDL_Surface*> spriteMap;
 
     void Initiate(){
         
@@ -22,10 +25,20 @@ namespace image{
         if (screenSurface == NULL) {
             log(ERROR)<<"Failed to create SDL window: "<< SDL_GetError();
         }
+
+        engine::image::driverDrawToScreen(&DrawToScreen);
+        engine::image::driverLoadSprite(&LoadSprite);
+        engine::image::driverNewSpriteColor(&NewSpriteColor);
+        engine::image::driverNewSpriteRotation(&NewSpriteRotation);
+        engine::image::driverNewSpriteScale(&NewSpriteScale);
+        engine::image::driverClearSprite(&ClearSprite);
+        engine::image::driverUpdateScreen(&UpdateScreen);
+
         log(INFO) << "SDL image initialized successfully.";
     }
 
-    void DrawToScreen(SDL_Surface* surface, int x, int y) {
+    void DrawToScreen(const std::string& original, int x, int y) {
+        SDL_Surface* surface=spriteMap[original];
         if (surface == NULL || screenSurface == NULL) {
             log(ERROR)<<"Invalid surface passed to DrawToScreen function.";
             return;
@@ -44,7 +57,7 @@ namespace image{
         }
     }
 
-    SDL_Surface* LoadSprite(const std::string& filename) {
+    void LoadSprite(const std::string& filename, const std::string& label) {
         SDL_Surface* loadedSurface = NULL;
         SDL_Surface* optimizedSurface = NULL;
 
@@ -52,7 +65,7 @@ namespace image{
         loadedSurface = IMG_Load(filename.c_str());
         if (loadedSurface == NULL) {
             log(ERROR)<<"Failed to load image " << filename << " " << IMG_GetError();
-            return NULL;
+            return;
         }
 
         // Optimize the surface
@@ -61,17 +74,21 @@ namespace image{
 
         if (optimizedSurface == NULL) {
             log(ERROR)<<"Failed to optimize image " << filename << " " << IMG_GetError();
-            return NULL;
+            return;
         }
 
-        return optimizedSurface;
+        if(spriteMap[label])
+            SDL_FreeSurface(spriteMap[label]);
+        spriteMap[label]=optimizedSurface;
+        return;
     }   
 
     
-    SDL_Surface* NewSpriteScale(SDL_Surface* surface, int newWidth, int newHeight) {
+    void NewSpriteScale(const std::string& original, const std::string& label, int newWidth, int newHeight) {
+        SDL_Surface* surface=spriteMap[original];
         if (surface == NULL) {
             log(ERROR)<<"Invalid surface passed to scaleSurface function.";
-            return NULL;
+            return;
         }
 
         // Create a new surface with the desired width and height
@@ -81,23 +98,27 @@ namespace image{
                                                     surface->format->Bmask, surface->format->Amask);
         if (newSurface == NULL) {
             log(ERROR)<<"Failed to create scaled surface. "<<SDL_GetError();
-            return NULL;
+            return;
         }
 
         // Use SDL_gfx to perform the surface scaling
         if (SDL_SoftStretch(surface, NULL, newSurface, NULL) != 0) {
             log(ERROR)<<"Failed to scale surface. "<<SDL_GetError();
             SDL_FreeSurface(newSurface);
-            return NULL;
+            return;
         }
-
-        return newSurface;
+        
+        if(spriteMap[label])
+            SDL_FreeSurface(spriteMap[label]);
+        spriteMap[label]=newSurface;
+        return;
     }
 
-    SDL_Surface* NewSpriteColor(SDL_Surface* surface, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha) {
+    void NewSpriteColor(const std::string& original, const std::string& label, int red, int green, int blue, int alpha) {
+        SDL_Surface* surface=spriteMap[original];
         if (surface == NULL) {
-            printf("Invalid surface passed to modifySurfaceColor function\n");
-            return NULL;
+            log(ERROR)<<"Invalid surface passed to modifySurfaceColor function";
+            return;
         }
 
         // Create a new surface with the same format and size
@@ -106,15 +127,15 @@ namespace image{
                                                     surface->format->Rmask, surface->format->Gmask,
                                                     surface->format->Bmask, surface->format->Amask);
         if (newSurface == NULL) {
-            printf("Failed to create modified surface: %s\n", SDL_GetError());
-            return NULL;
+            log(ERROR)<<"Failed to create modified surface: "<<SDL_GetError();
+            return;
         }
 
         // Lock the surfaces to access the pixels
         if (SDL_LockSurface(surface) != 0 || SDL_LockSurface(newSurface) != 0) {
-            printf("Failed to lock surfaces: %s\n", SDL_GetError());
+            log(ERROR)<<"Failed to lock surfaces: "<<SDL_GetError();
             SDL_FreeSurface(newSurface);
-            return NULL;
+            return;
         }
 
         // Modify the color and alpha values of each pixel
@@ -139,13 +160,17 @@ namespace image{
         SDL_UnlockSurface(surface);
         SDL_UnlockSurface(newSurface);
 
-        return newSurface;
+        if(spriteMap[label])
+            SDL_FreeSurface(spriteMap[label]);
+        spriteMap[label]=newSurface;
+        return;
     }
 
-    SDL_Surface* NewSpriteRotation(SDL_Surface* surface, double angle) {
+    void NewSpriteRotation(const std::string& original, const std::string& label, double angle) {
+        SDL_Surface* surface=spriteMap[original];
         if (surface == NULL) {
-            printf("Invalid surface passed to rotateSurface function\n");
-            return NULL;
+            log(ERROR)<<"Invalid surface passed to rotateSurface function";
+            return;
         }
 
         // Create a new surface with the same dimensions
@@ -154,15 +179,15 @@ namespace image{
                                                     surface->format->Rmask, surface->format->Gmask,
                                                     surface->format->Bmask, surface->format->Amask);
         if (newSurface == NULL) {
-            printf("Failed to create rotated surface: %s\n", SDL_GetError());
-            return NULL;
+            log(ERROR)<<"Failed to create rotated surface: "<<SDL_GetError();
+            return;
         }
 
         // Lock the surfaces
         if (SDL_LockSurface(surface) != 0 || SDL_LockSurface(newSurface) != 0) {
-            printf("Failed to lock surfaces: %s\n", SDL_GetError());
+            log(ERROR)<<"Failed to lock surfaces: "<<SDL_GetError();
             SDL_FreeSurface(newSurface);
-            return NULL;
+            return;
         }
 
         // Calculate the rotation center
@@ -197,7 +222,14 @@ namespace image{
         SDL_UnlockSurface(surface);
         SDL_UnlockSurface(newSurface);
 
-        return newSurface;
+        if(spriteMap[label])
+            SDL_FreeSurface(spriteMap[label]);
+        spriteMap[label]=newSurface;
+        return;
+    }
+
+    void ClearSprite(const std::string& label){
+        SDL_FreeSurface(spriteMap[label]);
     }
 
     void UpdateScreen(){

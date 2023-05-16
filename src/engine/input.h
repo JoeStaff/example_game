@@ -9,7 +9,7 @@ namespace input{
 
     constexpr int MAX_CONTROLLERS=16;
     
-    typedef std::function<void*()> ButtonFunction;
+    typedef std::function<void*(int)> ButtonFunction;
 
     enum class ButtonActionType{
         Up,

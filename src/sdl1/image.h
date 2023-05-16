@@ -3,18 +3,18 @@
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
-#include <SDL/SDL_gfxPrimitives.h>
 #include <string>
 
 namespace sdl1{
 namespace image{
 
     void Initiate();
-    void DrawToScreen(SDL_Surface* surface, int x, int y);
-    SDL_Surface* LoadSprite(const std::string& filename);
-    SDL_Surface* NewSpriteScale(SDL_Surface* surface, int newWidth, int newHeight);
-    SDL_Surface* NewSpriteColor(SDL_Surface* surface, Uint8 red, Uint8 green, Uint8 blue, Uint8 alpha);
-    SDL_Surface* NewSpriteRotation(SDL_Surface* surface, double angle);
+    void DrawToScreen(const std::string& original, int x, int y);
+    void LoadSprite(const std::string& filename, const std::string& label);
+    void NewSpriteScale(const std::string& original, const std::string& label, int newWidth, int newHeight);
+    void NewSpriteColor(const std::string& original, const std::string& label, int red, int green, int blue, int alpha);
+    void NewSpriteRotation(const std::string& original, const std::string& label, double angle);
+    void ClearSprite(const std::string& label);
     void UpdateScreen();
 
 }

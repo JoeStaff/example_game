@@ -21,5 +21,8 @@ namespace init{
         sdl1::audio::Initiate();
         sdl1::image::Initiate();
     }
+    void Quit(){
+        SDL_Quit();
+    }
 }
 }

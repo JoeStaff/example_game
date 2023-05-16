@@ -66,6 +66,16 @@ namespace input {
         controllerData[controller].tapFunctionMap.clear();
     }
 
+    bool IsButtonPressed(int controller, Controller button){
+        return controllerData[controller].buttonMap[button];
+    }
+    long long GetButtonPressTime(int controller, Controller button){
+        return controllerData[controller].buttonUpdateMap[button];
+    }
+    bool GetAxisValue(int controller, Controller button){
+        return controllerData[controller].axisMap[button];
+    }
+
     void _buttonDown(int controller, Controller button){
         controllerData[controller].buttonUpdateMap[button]=time::getCurrentTimeMillis();
         log(INFO)<< "Button Downed: "<<(int)button<<" Controller: "<<controller;
@@ -77,7 +87,7 @@ namespace input {
         if (controllerData[controller].downFunctionMap.find(button) != controllerData[controller].downFunctionMap.end())
         {
             const auto& buttonFunction=controllerData[controller].downFunctionMap[button];
-            buttonFunction();
+            buttonFunction(controller);
         }
     }
     void _buttonReleased(int controller, Controller button){
@@ -85,7 +95,7 @@ namespace input {
         if (controllerData[controller].upFunctionMap.find(button) != controllerData[controller].upFunctionMap.end())
         {
             const auto& buttonFunction=controllerData[controller].upFunctionMap[button];
-            buttonFunction();
+            buttonFunction(controller);
         }
         if(time::getCurrentTimeMillis()-controllerData[controller].buttonUpdateMap[button]<300)
             _buttonTapped(controller, button);
@@ -96,7 +106,7 @@ namespace input {
         {
             log(INFO)<<"Function Found for button tap";
             const auto& buttonFunction=controllerData[controller].tapFunctionMap[button];
-            buttonFunction();
+            buttonFunction(controller);
         }
     }
     void _axisMoved(int controller, Controller button, int value){

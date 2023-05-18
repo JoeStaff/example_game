@@ -72,7 +72,7 @@ namespace input {
     long long GetButtonPressTime(int controller, Controller button){
         return controllerData[controller].buttonUpdateMap[button];
     }
-    bool GetAxisValue(int controller, Controller button){
+    int GetAxisValue(int controller, Controller button){
         return controllerData[controller].axisMap[button];
     }
 

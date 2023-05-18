@@ -1,6 +1,7 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 #include <SDL/SDL_gfxPrimitives.h>
+#include <SDL/SDL_ttf.h>
 
 #include <map>
 #include "../logger.h"
@@ -19,6 +20,9 @@ namespace image{
         if (SDL_InitSubSystem(SDL_INIT_VIDEO) < 0) {
             log(ERROR)<<"SDL initialization failed: "<< SDL_GetError();
         }
+        if (TTF_Init() < 0) {
+            log(ERROR)<<"TTF initialization failed: "<< SDL_GetError();
+        }
 
         // Create the SDL window
         screenSurface = SDL_SetVideoMode(640, 480, 32, SDL_SWSURFACE);
@@ -28,6 +32,9 @@ namespace image{
 
         engine::image::driverDrawToScreen(&DrawToScreen);
         engine::image::driverLoadSprite(&LoadSprite);
+        engine::image::driverCreateText(&CreateText);
+        engine::image::driverCreateBox(&CreateBox);
+        engine::image::driverStitchSprite(&StitchSprite);
         engine::image::driverNewSpriteColor(&NewSpriteColor);
         engine::image::driverNewSpriteRotation(&NewSpriteRotation);
         engine::image::driverNewSpriteScale(&NewSpriteScale);
@@ -83,6 +90,90 @@ namespace image{
         return;
     }   
 
+    void CreateText(const std::string& label, const std::string& text, const std::string& fontFile, int fontSize, int r, int g, int b)
+    {
+
+        // Open the font
+        TTF_Font* font = TTF_OpenFont(fontFile.c_str(), fontSize);
+        if (font == nullptr)
+        {
+            // Error handling if the font failed to load
+            log(ERROR)<<"Failed to load font: "<<TTF_GetError();
+            return;
+        }
+
+        // Render the text
+        SDL_Color textColor = { r, g, b };
+        SDL_Surface* textSurface = TTF_RenderText_Blended(font, text.c_str(), textColor);
+        if (textSurface == nullptr)
+        {
+            // Error handling if the text failed to render
+            log(ERROR)<<"Failed to render text: "<<TTF_GetError();
+            TTF_CloseFont(font);
+            return;
+        }
+
+        // Clean up the font
+        TTF_CloseFont(font);
+        if(spriteMap[label])
+            SDL_FreeSurface(spriteMap[label]);
+        spriteMap[label]=textSurface;
+        return;
+    }
+    void CreateBox(const std::string& label, int width, int height, int r, int g, int b){
+        
+        // Create the surface
+        SDL_Surface* surface = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA, width, height, 32, 0, 0, 0, 0);
+        if (surface == nullptr)
+        {
+            // Error handling if the surface failed to create
+            log(ERROR)<<"Failed to create surface: "<<SDL_GetError();
+            return;
+        }
+        SDL_Rect rect={0,0,surface->w,surface->h};
+        FillRectWithAlpha(surface,rect,r,g,b,255);
+        SDL_Surface* blendedSurface = SDL_DisplayFormatAlpha(surface);
+        SDL_FreeSurface(surface);
+        if(spriteMap[label])
+            SDL_FreeSurface(spriteMap[label]);
+        spriteMap[label]=blendedSurface;
+    }
+    void StitchSprite(const std::string& sprite, const std::string& destination, const std::string& label, int x ,int y)
+    {
+        SDL_Surface* surfaceA=spriteMap[sprite];
+        SDL_Surface* surfaceB=spriteMap[destination];
+        // Create the new surface
+        SDL_Surface* newSurface = SDL_CreateRGBSurface(surfaceB->flags, surfaceB->w, surfaceB->h,
+                                                    surfaceB->format->BitsPerPixel,
+                                                    surfaceB->format->Rmask, surfaceB->format->Gmask,
+                                                    surfaceB->format->Bmask, surfaceB->format->Amask);
+        if (newSurface == nullptr)
+        {
+            // Error handling if the new surface failed to create
+            log(ERROR)<<"Failed to create new surface: "<<SDL_GetError();
+            return;
+        }
+
+        // Blit surfaceB onto the new surface
+        SDL_SetAlpha(surfaceB, 0, 0);  // Disable blending on the original surface
+        SDL_SetAlpha(newSurface, 0, 0);  // Disable blending on the cloned surface
+
+        SDL_BlitSurface(surfaceB, nullptr, newSurface, nullptr);
+
+        SDL_SetAlpha(surfaceB, SDL_SRCALPHA, 255);  // Restore the original surface's alpha blending
+        SDL_SetAlpha(newSurface, SDL_SRCALPHA, 255);  // Restore the cloned surface's alpha blending
+
+        // Blit surfaceA onto the new surface at the specified position
+        SDL_Rect destRect;
+        destRect.x = x;
+        destRect.y = y;
+        SDL_BlitSurface(surfaceA, nullptr, newSurface, &destRect);
+
+        if(spriteMap[label])
+            SDL_FreeSurface(spriteMap[label]);
+        spriteMap[label]=newSurface;
+        return;
+    }
     
     void NewSpriteScale(const std::string& original, const std::string& label, int newWidth, int newHeight) {
         SDL_Surface* surface=spriteMap[original];
@@ -147,8 +238,8 @@ namespace image{
                 SDL_GetRGBA(pixel, surface->format, &originalR, &originalG, &originalB, &originalA);
 
                 Uint8 newR = (originalR * red) / 255;
-                Uint8 newG = (originalG * green) / 255;
-                Uint8 newB = (originalB * blue) / 255;
+                Uint8 newG = (originalG * blue) / 255;
+                Uint8 newB = (originalB * green) / 255;
                 Uint8 newA = (originalA * alpha) / 255;
 
                 Uint32 newPixel = SDL_MapRGBA(newSurface->format, newR, newG, newB, newA);
@@ -240,6 +331,31 @@ namespace image{
         // Fill the surface with the specified color
         Uint32 color = SDL_MapRGB(screenSurface->format, 0, 0, 0);
         SDL_FillRect(screenSurface, &rect, color);
+    }
+
+    void FillRectWithAlpha(SDL_Surface* surface, SDL_Rect rect, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+    {
+        // Convert the color to the format of the surface
+        Uint32 color = SDL_MapRGBA(surface->format, r, g, b, a);
+
+        // Lock the surface to access its pixels
+        if (SDL_MUSTLOCK(surface))
+            SDL_LockSurface(surface);
+
+        // Draw the filled rectangle pixel by pixel
+        Uint32* pixels = static_cast<Uint32*>(surface->pixels);
+        int pitch = surface->pitch / sizeof(Uint32);
+        for (int y = rect.y; y < rect.y + rect.h; ++y)
+        {
+            for (int x = rect.x; x < rect.x + rect.w; ++x)
+            {
+                pixels[y * pitch + x] = color;
+            }
+        }
+
+        // Unlock the surface if necessary
+        if (SDL_MUSTLOCK(surface))
+            SDL_UnlockSurface(surface);
     }
 
 }

@@ -63,6 +63,9 @@ namespace input{
     void setButtonFunction(int controller, Controller button, ButtonActionType buttonActionType, ButtonFunction function);
     void clearButtonFunction(int controller, Controller button, ButtonActionType buttonActionType);
     void clearAllButtonFunction(int controller);
+    bool IsButtonPressed(int controller, Controller button);
+    long long GetButtonPressTime(int controller, Controller button);
+    int GetAxisValue(int controller, Controller button);
     void _buttonDown(int controller, Controller button);
     void _buttonReleased(int controller, Controller button);
     void _buttonTapped(int controller, Controller button);

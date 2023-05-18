@@ -4,6 +4,9 @@ namespace engine{
 namespace image{
     _drawToScreen _drawToScreenF=nullptr;
     _loadSprite _loadSpriteF=nullptr;
+    _createText _createTextF=nullptr;
+    _createBox _createBoxF=nullptr;
+    _stitchSprite _stitchSpriteF=nullptr;
     _newSpriteScale _newSpriteScaleF=nullptr;
     _newSpriteColor _newSpriteColorF=nullptr;
     _newSpriteRotation _newSpriteRotationF=nullptr;
@@ -14,6 +17,15 @@ namespace image{
     }
     void driverLoadSprite(_loadSprite function){
         _loadSpriteF=function;
+    }
+    void driverCreateText(_createText function){
+        _createTextF=function;
+    }
+    void driverCreateBox(_createBox function){
+        _createBoxF=function;
+    }
+    void driverStitchSprite(_stitchSprite function){
+        _stitchSpriteF=function;
     }
     void driverNewSpriteScale(_newSpriteScale function){
         _newSpriteScaleF=function;
@@ -37,6 +49,21 @@ namespace image{
     void LoadSprite(const std::string& filename, const std::string& label){
         if(_loadSpriteF)
             _loadSpriteF(filename,label);
+
+    }
+    void CreateText(const std::string& label, const std::string& text, const std::string& fontFile, int fontSize, int r, int g, int b){
+        if(_createTextF)
+            _createTextF(label,text,fontFile,fontSize,r,g,b);
+
+    }
+    void CreateBox(const std::string& label, int width, int height, int r, int g, int b){
+        if(_createBoxF)
+            _createBoxF(label,width,height,r,g,b);
+
+    }
+    void StitchSprite(const std::string& sprite, const std::string& destination, const std::string& label, int x ,int y){
+        if(_stitchSpriteF)
+            _stitchSpriteF(sprite,destination,label,x,y);
 
     }
     void NewSpriteScale(const std::string& original, const std::string& label, int newWidth, int newHeight){

@@ -30,6 +30,8 @@ namespace image{
             log(ERROR)<<"Failed to create SDL window: "<< SDL_GetError();
         }
 
+        SDL_ShowCursor(false);
+        
         engine::image::driverDrawToScreen(&DrawToScreen);
         engine::image::driverLoadSprite(&LoadSprite);
         engine::image::driverCreateText(&CreateText);

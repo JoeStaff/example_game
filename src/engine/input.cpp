@@ -31,21 +31,21 @@ namespace input {
                 if(controller==-1)
                     for(int i=0; i<MAX_CONTROLLERS; i++)
                         controllerData[i].upFunctionMap[button]=function;
-                else
+                if(controller>=0 && controller<MAX_CONTROLLERS)
                     controllerData[controller].upFunctionMap[button]=function;
                 break;
             case ButtonActionType::Down:
                 if(controller==-1)
                     for(int i=0; i<MAX_CONTROLLERS; i++)
                         controllerData[i].downFunctionMap[button]=function;
-                else
+                if(controller>=0 && controller<MAX_CONTROLLERS)
                     controllerData[controller].downFunctionMap[button]=function;
                 break;
             case ButtonActionType::Tap:
                 if(controller==-1)
                     for(int i=0; i<MAX_CONTROLLERS; i++)
                         controllerData[i].tapFunctionMap[button]=function;
-                else
+                if(controller>=0 && controller<MAX_CONTROLLERS)
                     controllerData[controller].tapFunctionMap[button]=function;
                 break;
         }
@@ -57,7 +57,7 @@ namespace input {
                     for(int i=0; i<MAX_CONTROLLERS; i++)
                         if (controllerData[i].downFunctionMap.find(button) != controllerData[i].downFunctionMap.end())
                             controllerData[i].downFunctionMap.erase(button);
-                if (controllerData[controller].downFunctionMap.find(button) != controllerData[controller].downFunctionMap.end())
+                if ((controller>=0 && controller<MAX_CONTROLLERS) && controllerData[controller].downFunctionMap.find(button) != controllerData[controller].downFunctionMap.end())
                     controllerData[controller].downFunctionMap.erase(button);
                 break;
             case ButtonActionType::Up:
@@ -65,7 +65,7 @@ namespace input {
                     for(int i=0; i<MAX_CONTROLLERS; i++)
                         if (controllerData[i].upFunctionMap.find(button) != controllerData[i].upFunctionMap.end())
                             controllerData[i].upFunctionMap.erase(button);
-                if (controllerData[controller].upFunctionMap.find(button) != controllerData[controller].upFunctionMap.end())
+                if ((controller>=0 && controller<MAX_CONTROLLERS) && controllerData[controller].upFunctionMap.find(button) != controllerData[controller].upFunctionMap.end())
                     controllerData[controller].upFunctionMap.erase(button);
                 break;
             case ButtonActionType::Tap:
@@ -73,19 +73,19 @@ namespace input {
                     for(int i=0; i<MAX_CONTROLLERS; i++)
                         if (controllerData[i].tapFunctionMap.find(button) != controllerData[i].tapFunctionMap.end())
                             controllerData[i].tapFunctionMap.erase(button);
-                if (controllerData[controller].tapFunctionMap.find(button) != controllerData[controller].tapFunctionMap.end())
+                if ((controller>=0 && controller<MAX_CONTROLLERS) && controllerData[controller].tapFunctionMap.find(button) != controllerData[controller].tapFunctionMap.end())
                     controllerData[controller].tapFunctionMap.erase(button);
                 break;
         }
     }
     void clearAllButtonFunction(int controller){
-        if(controller==-1)
+        if(controller==-1){
             for(int i=0; i<MAX_CONTROLLERS; i++){
                 controllerData[i].downFunctionMap.clear();
                 controllerData[i].upFunctionMap.clear();
                 controllerData[i].tapFunctionMap.clear();
             }
-        else{
+        }else if(controller>=0 && controller<MAX_CONTROLLERS){
             controllerData[controller].downFunctionMap.clear();
             controllerData[controller].upFunctionMap.clear();
             controllerData[controller].tapFunctionMap.clear();

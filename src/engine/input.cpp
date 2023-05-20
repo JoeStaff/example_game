@@ -28,42 +28,68 @@ namespace input {
     void setButtonFunction(int controller, Controller button, ButtonActionType buttonActionType, ButtonFunction function){
         switch(buttonActionType){
             case ButtonActionType::Up:
-                controllerData[controller].upFunctionMap[button]=function;
+                if(controller==-1)
+                    for(int i=0; i<MAX_CONTROLLERS; i++)
+                        controllerData[i].upFunctionMap[button]=function;
+                else
+                    controllerData[controller].upFunctionMap[button]=function;
                 break;
             case ButtonActionType::Down:
-                controllerData[controller].downFunctionMap[button]=function;
+                if(controller==-1)
+                    for(int i=0; i<MAX_CONTROLLERS; i++)
+                        controllerData[i].downFunctionMap[button]=function;
+                else
+                    controllerData[controller].downFunctionMap[button]=function;
                 break;
             case ButtonActionType::Tap:
-                controllerData[controller].tapFunctionMap[button]=function;
+                if(controller==-1)
+                    for(int i=0; i<MAX_CONTROLLERS; i++)
+                        controllerData[i].tapFunctionMap[button]=function;
+                else
+                    controllerData[controller].tapFunctionMap[button]=function;
                 break;
         }
     }
     void clearButtonFunction(int controller, Controller button, ButtonActionType buttonActionType){
         switch(buttonActionType){
             case ButtonActionType::Down:
+                if(controller==-1)
+                    for(int i=0; i<MAX_CONTROLLERS; i++)
+                        if (controllerData[i].downFunctionMap.find(button) != controllerData[i].downFunctionMap.end())
+                            controllerData[i].downFunctionMap.erase(button);
                 if (controllerData[controller].downFunctionMap.find(button) != controllerData[controller].downFunctionMap.end())
-                {
                     controllerData[controller].downFunctionMap.erase(button);
-                }
                 break;
             case ButtonActionType::Up:
+                if(controller==-1)
+                    for(int i=0; i<MAX_CONTROLLERS; i++)
+                        if (controllerData[i].upFunctionMap.find(button) != controllerData[i].upFunctionMap.end())
+                            controllerData[i].upFunctionMap.erase(button);
                 if (controllerData[controller].upFunctionMap.find(button) != controllerData[controller].upFunctionMap.end())
-                {
                     controllerData[controller].upFunctionMap.erase(button);
-                }
                 break;
             case ButtonActionType::Tap:
+                if(controller==-1)
+                    for(int i=0; i<MAX_CONTROLLERS; i++)
+                        if (controllerData[i].tapFunctionMap.find(button) != controllerData[i].tapFunctionMap.end())
+                            controllerData[i].tapFunctionMap.erase(button);
                 if (controllerData[controller].tapFunctionMap.find(button) != controllerData[controller].tapFunctionMap.end())
-                {
                     controllerData[controller].tapFunctionMap.erase(button);
-                }
                 break;
         }
     }
     void clearAllButtonFunction(int controller){
-        controllerData[controller].downFunctionMap.clear();
-        controllerData[controller].upFunctionMap.clear();
-        controllerData[controller].tapFunctionMap.clear();
+        if(controller==-1)
+            for(int i=0; i<MAX_CONTROLLERS; i++){
+                controllerData[i].downFunctionMap.clear();
+                controllerData[i].upFunctionMap.clear();
+                controllerData[i].tapFunctionMap.clear();
+            }
+        else{
+            controllerData[controller].downFunctionMap.clear();
+            controllerData[controller].upFunctionMap.clear();
+            controllerData[controller].tapFunctionMap.clear();
+        }
     }
 
     bool IsButtonPressed(int controller, Controller button){
@@ -79,10 +105,6 @@ namespace input {
     void _buttonDown(int controller, Controller button){
         controllerData[controller].buttonUpdateMap[button]=time::getCurrentTimeMillis();
         log(INFO)<< "Button Downed: "<<(int)button<<" Controller: "<<controller;
-
-        //For Development Speediness
-        if(button==Controller::FUNCTION)
-            KillGame();
 
         if (controllerData[controller].downFunctionMap.find(button) != controllerData[controller].downFunctionMap.end())
         {

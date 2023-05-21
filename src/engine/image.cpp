@@ -12,6 +12,7 @@ namespace image{
     _newSpriteRotation _newSpriteRotationF=nullptr;
     _clearSprite _clearSpriteF=nullptr;
     _updateScreen _updateScreenF=nullptr;
+    _getSpriteSize _getSpriteSizeF=nullptr;
     void driverDrawToScreen(_drawToScreen function){
         _drawToScreenF=function;
     }
@@ -41,6 +42,9 @@ namespace image{
     }
     void driverUpdateScreen(_updateScreen function){
         _updateScreenF=function;
+    }
+    void driverGetSpriteSize(_getSpriteSize function){
+        _getSpriteSizeF=function;
     }
     void DrawToScreen(const std::string& original, int x, int y){
         if(_drawToScreenF)
@@ -85,6 +89,14 @@ namespace image{
     void UpdateScreen(){
         if(_updateScreenF)
             _updateScreenF();
+    }
+    void GetSpriteSize(const std::string& label, int* width, int* height){
+        if(_getSpriteSizeF){
+            int w,h;
+            _getSpriteSizeF(label,&w,&h);
+            width=&w;
+            height=&h;
+        }
     }
 }
 }

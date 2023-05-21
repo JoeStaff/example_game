@@ -20,6 +20,7 @@ namespace image{
     void ClearSprite(const std::string& label);
     void UpdateScreen();
     void FillRectWithAlpha(SDL_Surface* surface, SDL_Rect rect, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+    void GetSpriteSize(const std::string& label, int *width, int *height);
 }
 }
 

@@ -31,7 +31,7 @@ namespace image{
         }
 
         SDL_ShowCursor(false);
-        
+
         engine::image::driverDrawToScreen(&DrawToScreen);
         engine::image::driverLoadSprite(&LoadSprite);
         engine::image::driverCreateText(&CreateText);
@@ -42,6 +42,7 @@ namespace image{
         engine::image::driverNewSpriteScale(&NewSpriteScale);
         engine::image::driverClearSprite(&ClearSprite);
         engine::image::driverUpdateScreen(&UpdateScreen);
+        engine::image::driverGetSpriteSize(&GetSpriteSize);
 
         log(INFO) << "SDL image initialized successfully.";
     }
@@ -358,6 +359,12 @@ namespace image{
         // Unlock the surface if necessary
         if (SDL_MUSTLOCK(surface))
             SDL_UnlockSurface(surface);
+    }
+
+    void GetSpriteSize(const std::string& label, int *width, int *height){
+        SDL_Surface* surface=spriteMap[label];
+        width=&surface->w;
+        height=&surface->h;
     }
 
 }

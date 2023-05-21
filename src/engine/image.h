@@ -13,6 +13,7 @@ namespace image{
     typedef void (*_newSpriteRotation)(const std::string&, const std::string&, double);
     typedef void (*_clearSprite)(const std::string&);
     typedef void (*_updateScreen)();
+    typedef void (*_getSpriteSize)(const std::string&, int*, int*);
     void driverDrawToScreen(_drawToScreen function);
     void driverLoadSprite(_loadSprite function);
     void driverCreateText(_createText function);
@@ -22,7 +23,8 @@ namespace image{
     void driverNewSpriteColor(_newSpriteColor function);
     void driverNewSpriteRotation(_newSpriteRotation function);  
     void driverClearSprite(_clearSprite function);  
-    void driverUpdateScreen(_updateScreen function);  
+    void driverUpdateScreen(_updateScreen function); 
+    void driverGetSpriteSize(_getSpriteSize function);  
     void DrawToScreen(const std::string& original, int x, int y);
     void LoadSprite(const std::string& filename, const std::string& label);
     void CreateText(const std::string& label, const std::string& text, const std::string& fontFile, int fontSize, int r, int g, int b);
@@ -33,6 +35,7 @@ namespace image{
     void NewSpriteRotation(const std::string& original, const std::string& label, double angle);
     void ClearSprite(const std::string& label);
     void UpdateScreen();
+    void GetSpriteSize(const std::string& label, int *width, int *height);
 }
 }
 #endif

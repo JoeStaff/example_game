@@ -181,6 +181,100 @@ namespace input {
             }
     }
 
+    std::string GetButtonName(Controller button,const std::string& controllerName){
+        std::string result="Unknown Button";
+        switch(button){
+            case Controller::SOUTH:
+                result="South";
+                break;
+            case Controller::EAST:
+                result="East";
+                break;
+            case Controller::WEST:
+                result="West";
+                break;
+            case Controller::NORTH:
+                result="North";
+                break;
+            case Controller::DPAD_UP:
+                result="Dpad Up";
+                break;
+            case Controller::DPAD_RIGHT:
+                result="Dpad Right";
+                break;
+            case Controller::DPAD_DOWN:
+                result="Dpad Down";
+                break;
+            case Controller::DPAD_LEFT:
+                result="Dpad Left";
+                break;
+            case Controller::LEFT_BUMPER:
+                if(controllerName.compare("RG35XX Gamepad")==0)
+                    result="L1";
+                else
+                    result="Left Bumper";
+                break;
+            case Controller::LEFT_TRIGGER:
+                if(controllerName.compare("RG35XX Gamepad")==0)
+                    result="L2";
+                else
+                    result="Left Trigger";
+                break;
+            case Controller::RIGHT_BUMPER:
+                if(controllerName.compare("RG35XX Gamepad")==0)
+                    result="R1";
+                else
+                    result="Right Bumper";
+                break;
+            case Controller::RIGHT_TRIGGER:
+                if(controllerName.compare("RG35XX Gamepad")==0)
+                    result="R2";
+                else
+                    result="Right Trigger";
+                break;
+            case Controller::LEFT_STICK:
+                result="Left Stick";
+                break;
+            case Controller::RIGHT_STICK:
+                result="Right Stick";
+                break;
+            case Controller::START:
+                result="Start";
+                break;
+            case Controller::SELECT:
+                result="Select";
+                break;
+            case Controller::POWER:
+                result="Power";
+                break;
+            case Controller::FUNCTION:
+                if(controllerName.compare("RG35XX Gamepad")==0)
+                    result="Menu";
+                else
+                    result="Function";
+                break;
+            case Controller::VOLUME_UP:
+                result="Volume Up";
+                break;
+            case Controller::VOLUME_DOWN:
+                result="Volume Down";
+                break;
+            case Controller::LEFT_STICK_H:
+                result="Left Analog Stick X";
+                break;
+            case Controller::LEFT_STICK_V:
+                result="Left Analog Stick Y";
+                break;
+            case Controller::RIGHT_STICK_H:
+                result="Right Analog Stick X";
+                break;
+            case Controller::RIGHT_STICK_V:
+                result="Right Analog Stick Y";
+                break;
+        }
+        return result;
+    }
+
 }
 
 }

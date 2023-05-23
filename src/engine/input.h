@@ -75,6 +75,7 @@ namespace input{
     void _buttonReleased(int controller, Controller button);
     void _buttonTapped(int controller, Controller button);
     void _axisMoved(int controller, Controller button, int value);
+    std::string GetButtonName(Controller button,const std::string& controllerName);
 
 }
 

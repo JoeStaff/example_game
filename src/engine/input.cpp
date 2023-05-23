@@ -1,5 +1,5 @@
 
-#include "../engine/input.h"
+#include "input.h"
 #include "../engine/time.h"
 #include "../logger.h"
 #include "../main.h"
@@ -8,6 +8,8 @@
 namespace engine {
 namespace input {
     ControllerData controllerData[MAX_CONTROLLERS];
+    std::map<const std::string,EventFunction> eventFunctions;
+    std::map<const std::string,bool> eventFunctionsClear;
     
     void SetButton(int controller, Controller button, bool down){
         if(controllerData[controller].buttonMap[button]!=down){
@@ -23,6 +25,18 @@ namespace input {
             controllerData[controller].axisMap[button]=value;
             _axisMoved(controller,button,value);
         }
+    }
+
+    void addEventFunction(const std::string& label, EventFunction function){
+        eventFunctions[label]=function;
+    }
+    void removeEventFunction(const std::string& label){
+        if (eventFunctions.find(label) != eventFunctions.end())
+            eventFunctionsClear[label]=true;
+    }
+    void removeAllEventFunctions(){
+        for (const auto& func : eventFunctions)
+            eventFunctionsClear[func.first]=true;
     }
 
     void setButtonFunction(int controller, Controller button, ButtonActionType buttonActionType, ButtonFunction function){
@@ -106,11 +120,22 @@ namespace input {
         controllerData[controller].buttonUpdateMap[button]=time::getCurrentTimeMillis();
         log(INFO)<< "Button Downed: "<<(int)button<<" Controller: "<<controller;
 
+        //For Development Speediness
+        if(button==Controller::FUNCTION)
+            KillGame();
+
         if (controllerData[controller].downFunctionMap.find(button) != controllerData[controller].downFunctionMap.end())
         {
             const auto& buttonFunction=controllerData[controller].downFunctionMap[button];
             buttonFunction(controller);
         }
+        for (const auto& func : eventFunctions)
+            func.second(controller, button, ButtonActionType::Down);
+        for (const auto& func : eventFunctionsClear)
+            if(func.second){
+                eventFunctions.erase(func.first);
+                eventFunctionsClear[func.first]=false;
+            }
     }
     void _buttonReleased(int controller, Controller button){
         log(INFO)<< "Button Released: "<<(int)button<<" Controller: "<<controller;
@@ -119,6 +144,13 @@ namespace input {
             const auto& buttonFunction=controllerData[controller].upFunctionMap[button];
             buttonFunction(controller);
         }
+        for (const auto& func : eventFunctions)
+            func.second(controller, button, ButtonActionType::Up);
+        for (const auto& func : eventFunctionsClear)
+            if(func.second){
+                eventFunctions.erase(func.first);
+                eventFunctionsClear[func.first]=false;
+            }
         if(time::getCurrentTimeMillis()-controllerData[controller].buttonUpdateMap[button]<300)
             _buttonTapped(controller, button);
     }
@@ -130,9 +162,23 @@ namespace input {
             const auto& buttonFunction=controllerData[controller].tapFunctionMap[button];
             buttonFunction(controller);
         }
+        for (const auto& func : eventFunctions)
+            func.second(controller, button, ButtonActionType::Tap);
+        for (const auto& func : eventFunctionsClear)
+            if(func.second){
+                eventFunctions.erase(func.first);
+                eventFunctionsClear[func.first]=false;
+            }
     }
     void _axisMoved(int controller, Controller button, int value){
         log(INFO)<< "Axis Moved: "<<(int)button<<" Value: "<<value<<" Controller: "<<controller;
+        for (const auto& func : eventFunctions)
+            func.second(controller, button, ButtonActionType::Axis);
+        for (const auto& func : eventFunctionsClear)
+            if(func.second){
+                eventFunctions.erase(func.first);
+                eventFunctionsClear[func.first]=false;
+            }
     }
 
 }

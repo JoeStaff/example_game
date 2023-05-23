@@ -9,12 +9,12 @@ namespace input{
 
     constexpr int MAX_CONTROLLERS=16;
     
-    typedef std::function<void*(int)> ButtonFunction;
 
     enum class ButtonActionType{
         Up,
         Down,
-        Tap
+        Tap,
+        Axis
     };
 
     enum class Controller{
@@ -44,6 +44,8 @@ namespace input{
         RIGHT_STICK_V
     };
 
+    typedef std::function<void*(int)> ButtonFunction;
+    typedef std::function<void*(int,Controller,ButtonActionType)> EventFunction;
     using ButtonMap = std::map<Controller, bool>;
     using ButtonUpdateMap = std::map<Controller, long long>;
     using AxisMap = std::map<Controller, int>;
@@ -60,6 +62,9 @@ namespace input{
     };
     void SetButton(int controller, Controller button, bool down);
     void SetAxis(int controller, Controller button,int value);
+    void addEventFunction(const std::string& label, EventFunction function);
+    void removeEventFunction(const std::string& label);
+    void removeAllEventFunctions();
     void setButtonFunction(int controller, Controller button, ButtonActionType buttonActionType, ButtonFunction function);
     void clearButtonFunction(int controller, Controller button, ButtonActionType buttonActionType);
     void clearAllButtonFunction(int controller);

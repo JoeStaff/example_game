@@ -10,7 +10,10 @@ namespace input {
     ControllerData controllerData[MAX_CONTROLLERS];
     std::map<const std::string,EventFunction> eventFunctions;
     std::map<const std::string,bool> eventFunctionsClear;
-    
+    std::map<int,std::string> controllerNameMap;
+    _getControllerName _getControllerNameF=nullptr;
+    _getRawInputAsString _getRawInputAsStringF=nullptr;
+
     void SetButton(int controller, Controller button, bool down){
         if(controllerData[controller].buttonMap[button]!=down){
             controllerData[controller].buttonMap[button]=down;
@@ -121,8 +124,8 @@ namespace input {
         log(INFO)<< "Button Downed: "<<(int)button<<" Controller: "<<controller;
 
         //For Development Speediness
-        if(button==Controller::FUNCTION)
-            KillGame();
+        //if(button==Controller::FUNCTION)
+        //    KillGame();
 
         if (controllerData[controller].downFunctionMap.find(button) != controllerData[controller].downFunctionMap.end())
         {
@@ -181,6 +184,26 @@ namespace input {
             }
     }
 
+    void driverGetControllerName(_getControllerName function){
+        _getControllerNameF=function;
+    }
+    std::string GetControllerName(int controller){
+        std::string name;
+        if(controllerNameMap[controller].length()>0)
+            name=controllerNameMap[controller];
+        else{
+            name=_getControllerNameF(controller);
+            controllerNameMap[controller]=name;
+        }
+        return name;
+    }
+
+    void driverGetRawInputAsString(_getRawInputAsString function){
+        _getRawInputAsStringF=function;
+    }
+    std::string GetRawInputAsString(int controller, Controller button){
+        return _getRawInputAsStringF(controller,button);
+    }
     std::string GetButtonName(Controller button,const std::string& controllerName){
         std::string result="Unknown Button";
         switch(button){

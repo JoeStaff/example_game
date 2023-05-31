@@ -25,6 +25,8 @@ namespace input {
     void Initiate();
     void ConnectControllers();
     int PollEvents(void* data);
+    std::string GetControllerName(int controller);
+    std::string GetRawInputAsString(int controller,engine::input::Controller button);
     void MapController(int controller, std::vector<FileButtonMapping> mappings);
     std::vector<FileButtonMapping> findButtonMappings(const std::string& filename, const std::string& joystickName);
     std::vector<FileButtonMapping> parseButtonMappings(const std::string& line);

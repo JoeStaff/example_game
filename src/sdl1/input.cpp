@@ -4,6 +4,7 @@
 #include <SDL/SDL_thread.h>
 #include <fstream>
 #include <sstream>
+#include <limits>
 #include <vector>
 #include <map>
 #include <unordered_set>
@@ -31,6 +32,10 @@ namespace input {
         ConnectControllers();
         int threadID;
         thread=SDL_CreateThread(PollEvents,&threadID);
+
+        engine::input::driverGetControllerName(&GetControllerName);
+        engine::input::driverGetRawInputAsString(&GetRawInputAsString);
+
     }
 
     void ConnectControllers(){
@@ -55,17 +60,23 @@ namespace input {
             
             const std::string filename = "joystick_mappings.txt";
             
-            std::vector<FileButtonMapping> mappings = findButtonMappings(filename, joystickName);
+            std::vector<FileButtonMapping> mappings;
+            mappings = findButtonMappings(filename, joystickName);
             
             if (mappings.empty()) {
-                log(INFO) << "JoystickName not found or no button mappings exist for that joystick.";
-            } else {
+                log(INFO) << "JoystickName not found or no button mappings exist for that joystick. Using Generic";
+                const std::string joystickName="Generic";
+                mappings = findButtonMappings(filename, joystickName);
+                if (mappings.empty()){
+                    log(ERROR) << "No Generic input found";
+                }
+            }
+            
                 log(INFO) << "Button mappings for " << joystickName << " loaded.";
                 for (const auto& mapping : mappings) {
                     log(INFO) << "Type: " << mapping.type << ", InputID: " << mapping.inputID
                             << ", Label: " << mapping.label << ", HatID: " << mapping.hatID;
                 }
-            }
 
             MapController(i,mappings);
             numConnectedJoysticks++;
@@ -177,8 +188,9 @@ namespace input {
         std::vector<FileButtonMapping> mappings;
         std::istringstream iss(line);
         std::string joystickName;
-        iss >> joystickName;
+        std::getline(iss, joystickName, ',');
         
+        log(INFO)<<"iss >> "<<joystickName;
         if (joystickName.empty())
             return mappings;  // Empty mappings if no JoystickName is found
         
@@ -209,7 +221,33 @@ namespace input {
             mappings.push_back({type, inputID, label, hatID});
         }
         
+        // Clear the state of iss and ignore remaining characters
+        iss.clear();
+        iss.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        
         return mappings;
+    }
+
+    std::string GetControllerName(int controller){
+        return SDL_JoystickName(controller);
+    }
+
+    std::string GetRawInputAsString(int controller, engine::input::Controller button){
+        for (auto inputmap : joystickData[controller].buttonMap){
+            if(inputmap.second==button){
+                return "Button:"+std::to_string(inputmap.first);
+            }
+        }
+        for (auto inputmap : joystickData[controller].axisMap){
+            if(inputmap.second==button){
+                return "Axis:"+std::to_string(inputmap.first);
+            }
+        }
+        for (auto inputmap : joystickData[controller].hatMap){
+            if(inputmap.second==button){
+                return "Hat:"+std::to_string(inputmap.first);
+            }
+        }
     }
 
     std::vector<FileButtonMapping> findButtonMappings(const std::string& filename, const std::string& joystickName) {
@@ -217,6 +255,8 @@ namespace input {
         std::string line;
         
         while (std::getline(file, line)) {
+            log(INFO)<<joystickName<<"|"<<line;
+            log(INFO)<<"line.substr(0,"<<joystickName.size()<<"()) == "<<joystickName;
             if (line.substr(0, joystickName.size()) == joystickName) {
                 return parseButtonMappings(line);
             }

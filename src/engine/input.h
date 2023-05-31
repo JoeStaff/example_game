@@ -46,10 +46,13 @@ namespace input{
 
     typedef std::function<void*(int)> ButtonFunction;
     typedef std::function<void*(int,Controller,ButtonActionType)> EventFunction;
+    typedef std::string (*_getControllerName)(int);
+    typedef std::string (*_getRawInputAsString)(int,Controller);
     using ButtonMap = std::map<Controller, bool>;
     using ButtonUpdateMap = std::map<Controller, long long>;
     using AxisMap = std::map<Controller, int>;
     using ButtonFunctionMap = std::map<Controller, ButtonFunction>;
+    
 
     struct ControllerData
     {
@@ -75,6 +78,11 @@ namespace input{
     void _buttonReleased(int controller, Controller button);
     void _buttonTapped(int controller, Controller button);
     void _axisMoved(int controller, Controller button, int value);
+
+    void driverGetControllerName(_getControllerName function);
+    std::string GetControllerName(int controller);
+    void driverGetRawInputAsString(_getRawInputAsString function);
+    std::string GetRawInputAsString(int controller, Controller button);
     std::string GetButtonName(Controller button,const std::string& controllerName);
 
 }
